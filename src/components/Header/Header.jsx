@@ -1,15 +1,28 @@
 import { createUseStyles } from 'react-jss';
+import { useSelector } from 'react-redux';
+
+import {
+  getMessages,
+  getNumberUsers,
+  lastMessageDate,
+} from '../../redux/selectors';
 
 export default function Header() {
   const classes = useStyles();
+  const messages = useSelector(getMessages);
+  const users = useSelector(getNumberUsers);
+  const lastDate = useSelector(lastMessageDate);
+
   return (
     <div className={classes.header}>
       <h1 aria-label="My Chat" className={classes.logo}>
         My Chat
       </h1>
       <div className={classes.informationBlock}>
-        <span className={classes.infoMes}>users messages</span>
-        <span className={classes.infoLastMes}>Last message</span>
+        <span className={classes.infoMes}>
+          users {users.length} messages {messages.length}{' '}
+        </span>
+        <span className={classes.infoLastMes}>Last message {lastDate} </span>
       </div>
     </div>
   );
@@ -35,7 +48,6 @@ const useStyles = createUseStyles({
   },
   infoMes: {
     color: 'whitesmoke',
-    // fontFamily: '30px',
     fontWeight: '600',
   },
   infoLastMes: {

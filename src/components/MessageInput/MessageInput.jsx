@@ -1,21 +1,40 @@
 import { createUseStyles } from 'react-jss';
-// import { makeStyles } from '@material-ui/core/styles';
-// import TextField from '@material-ui/core/TextField';
-// import Button from '@material-ui/core/Button';
+import { useState, useCallback } from 'react';
+import { useDispatch } from 'react-redux';
+import { addMessage } from '../../redux/operations';
 
 export default function Chat() {
   const classes = useStyles();
+  const dispatch = useDispatch();
+  const [message, setMessage] = useState('');
 
+  const handleChange = useCallback(e => {
+    setMessage(e.currentTarget.value);
+    console.log(e.currentTarget.value);
+  }, []);
+
+  const handleSubmit = useCallback(
+    e => {
+      e.preventDefault();
+
+      dispatch(addMessage(message));
+      setMessage('');
+    },
+    [dispatch, message],
+  );
   return (
-    <form className={classes.messageForm} autoComplete="off">
+    <form
+      className={classes.messageForm}
+      onSubmit={handleSubmit}
+      autoComplete="off"
+    >
       <input
-        // onChange={handleChange}
         className={classes.messageInput}
         type="text"
-        name="name"
-        // variant="contained"
+        value={message}
+        name="message"
+        onChange={handleChange}
         placeholder="Type something..."
-        // value={name}
         required
       />
       <button className={classes.messageButton}>Send</button>
@@ -27,7 +46,6 @@ const useStyles = createUseStyles({
   messageForm: {
     display: 'flex',
     alignItems: 'center',
-    // width: '100%',
     height: '80px',
     backgroundColor: '#e2e2e2',
     padding: [20, 40, 25, 40],
@@ -38,6 +56,7 @@ const useStyles = createUseStyles({
     width: '80%',
     height: '40px',
     borderRadius: '5px',
+
     border: 'none',
   },
   messageButton: {
@@ -49,6 +68,5 @@ const useStyles = createUseStyles({
     border: 'none',
     backgroundColor: '#8cc054',
     cursor: 'pointer',
-    // margin: [5, 15, 10, 0],
   },
 });

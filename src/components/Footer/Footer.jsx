@@ -18,16 +18,9 @@ export default function Chat() {
 const useStyles = createUseStyles({
   footer: {
     display: 'flex',
-    // justifyContent: 'center',
     flexDirection: 'column',
     flexWrap: 'wrap',
-    // margin: 'auto',
-
-    // alignItems: 'center',
-    // width: '100%',
-    // height: '60px',
     color: 'whitesmoke',
-    // margin: '0',
   },
   footerNavList: {
     display: 'flex',
@@ -39,16 +32,12 @@ const useStyles = createUseStyles({
     },
   },
   footerItem: {
-    // display: 'flex',
-
     fontWeight: '600',
     fontSize: '24px',
     flexDirection: 'row',
-    // flexWrap: 'wrap',
   },
   copyright: {
     fontWeight: '400',
     margin: 'auto',
-    // width: '100%',
   },
 });

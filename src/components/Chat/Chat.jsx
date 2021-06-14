@@ -1,102 +1,135 @@
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { createUseStyles } from 'react-jss';
 import { useSelector, useDispatch } from 'react-redux';
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import FavoriteIcon from '@material-ui/icons/Favorite';
+import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
-// import Message from './Message';
-import MessageInput from './MessageInput';
+import MessageInput from '../MessageInput';
 
-import { getMessages } from '../../redux/selectors';
-import { fetchMessages } from '../../redux/operations';
+import { getMessages, getLoading } from '../../redux/selectors';
+import { deleteMessage, editMessage } from '../../redux/actions';
 
 export default function Chat() {
-  const dispatch = useDispatch();
   const classes = useStyles();
+  const dispatch = useDispatch();
   const messages = useSelector(getMessages);
-  console.log('chat', messages);
+  const isLoading = useSelector(getLoading);
 
-  // const currentPage = useSelector(getCurrentPage);
-  useEffect(() => {
-    dispatch(fetchMessages());
-    console.log('usechat', messages);
-  }, [dispatch]);
+  ////////////Удаление///////////////////
+  const onDelete = id => {
+    dispatch(deleteMessage(id));
+  };
+  ////////// Редактирование//////////////////
+  const [value, setValue] = useState();
+  const [targetId, setTargetId] = useState();
 
-  // const avatar =
-  //   'https://cdn.pixabay.com/photo/2013/07/13/12/16/horse-159512_960_720.png';
+  const onChange = e => {
+    setValue(e.target.value);
+  };
+
+  const onSubmit = e => {
+    e.preventDefault();
+    dispatch(editMessage({ targetId, value }));
+    setTargetId(null);
+  };
+
+  const onEdit = (id, message) => {
+    setTargetId(id);
+    setValue(message);
+  };
+
   return (
-    <div>hhhh</div>
-    // <>
-    //   <div className={classes.chat}>
-    //     <ul className={classes.messageList}>
-    //       {messages &&
-    //         messages.map(({ id, avatar, created_at, message, user }) => (
-    //           <li key={id} className={classes.messageItem}>
-    //             <img
-    //               className={classes.img}
-    //               src={avatar}
-    //               alt="avatar"
-    //               width="60"
-    //               height="60"
-    //             />
-    //             <div className={classes.leftBlock}>
-    //               <h2 className={classes.name}>{user}</h2>
-    //               <p className={classes.otherMessage}>{message}</p>
-    //             </div>
-    //             <div className={classes.raightBlock}>
-    //               <span className={classes.date}>{created_at}</span>
-    //               <FavoriteBorderIcon />
-    //               {/* <FavoriteIcon color="#8cc054" /> */}
-    //             </div>
-    //           </li>
-    //         ))}
-    //     </ul>
-    //     <ul className={classes.ownMessageList}>
-    //       <li className={classes.ownMessageItem}>
-    //         <img
-    //           className={classes.img}
-    //           src={avatar}
-    //           alt="avatar"
-    //           width="60"
-    //           height="60"
-    //         />
-    //         <div className={classes.leftBlock}>
-    //           <h2 className={classes.name}>Name</h2>
-    //           <p className={classes.ownMessage}>message</p>
-    //         </div>
-    //         <div className={classes.raightBlock}>
-    //           <span className={classes.date}>date </span>
-    //         </div>
-    //       </li>
-    //     </ul>
-    //   </div>
-    //   <MessageInput />
-    // </>
+    <>
+      <div className={classes.chat}>
+        {isLoading && <CircularProgress />}
+        <ul className={classes.messageList}>
+          {messages.map(({ id, avatar, created_at, message, user }) =>
+            user !== 'Taylor' ? (
+              <li key={id} className={classes.messageItem}>
+                <img
+                  className={classes.img}
+                  src={avatar}
+                  alt="avatar"
+                  width="60"
+                  height="60"
+                />
+                <div className={classes.messageCont}>
+                  <div className={classes.topBlock}>
+                    <h2 className={classes.name}>{user}</h2>
+                    <span className={classes.date}>{created_at}</span>
+                  </div>
+                  <div className={classes.downBlock}>
+                    <p className={classes.otherMessage}>{message}</p>
+                    {targetId !== id ? (
+                      <FavoriteBorderIcon
+                        className={classes.icon}
+                        onClick={() => setTargetId(id)}
+                      />
+                    ) : (
+                      <FavoriteIcon
+                        className={classes.icon}
+                        onClick={() => setTargetId(id)}
+                      />
+                    )}
+                  </div>
+                </div>
+              </li>
+            ) : (
+              <li key={id} className={classes.ownMessageItem}>
+                <img
+                  className={classes.img}
+                  src={avatar}
+                  alt="avatar"
+                  width="60"
+                  height="60"
+                />
+                <div className={classes.messageCont}>
+                  <div className={classes.topBlock}>
+                    <h2 className={classes.name}>{user}</h2>
+                    <span className={classes.date}>{created_at}</span>
+                  </div>
+                  <div className={classes.downBlock}>
+                    {targetId !== id ? (
+                      <p className={classes.ownMessage}>{message}</p>
+                    ) : (
+                      <form onSubmit={onSubmit}>
+                        <input value={value} onChange={onChange} />
+                        <button type="submit">Сохранить</button>
+                      </form>
+                    )}
+                    <div className={classes.icon}>
+                      <DeleteIcon onClick={() => onDelete(id)} />
+                      <EditIcon onClick={() => onEdit(id, message)} />
+                    </div>
+                  </div>
+                </div>
+              </li>
+            ),
+          )}
+        </ul>
+      </div>
+
+      <MessageInput />
+    </>
   );
 }
 
 const useStyles = createUseStyles({
   chat: {
-    // display: 'flex',
-    // alignItems: 'center',
-    // width: '100%',
-    // height: '30px',
     backgroundColor: 'whitesmoke',
     padding: [20, 40, 20, 40],
   },
   messageList: {
     color: '#8cc054',
-    // width: '200px',
-    // fontWeight: '600',
-    // listStyle: 'none',
     margin: '0',
     padding: '0',
-    //написать не последний ребенок!!!!!!!!!!!!!!!!!!!!!!!!1
   },
 
   messageItem: {
     display: 'flex',
-    // justifyContent: 'space-between',
     backgroundColor: '#e2e2e2',
     fontWeight: '500',
 
@@ -104,11 +137,20 @@ const useStyles = createUseStyles({
     borderRadius: '10px',
     marginBottom: '20px',
   },
+  messageCont: {
+    display: 'block',
+    width: '100%',
+    height: '30px',
+  },
   img: {
     margin: '10px',
   },
-  leftBlock: {
-    // marginLeft: '0',
+  topBlock: {
+    display: 'flex',
+  },
+  downBlock: {
+    display: 'flex',
+    marginLeft: 'auto',
   },
   otherMessage: {
     margin: '0',
@@ -117,34 +159,31 @@ const useStyles = createUseStyles({
     marginBottom: '5px',
   },
   name: {
+    width: '50%',
+    height: '30px',
     fontWeight: '500',
     margin: '0',
     marginTop: '8px',
   },
-  raightBlock: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '80px',
-    marginLeft: 'auto',
-  },
+
   date: {
+    height: '20px',
     color: '#848583',
     fontWeight: '400',
-    margin: [5, 10, 30, 0],
+    marginLeft: 'auto',
+    margin: [5, 10, 0, 'auto'],
+  },
+  icon: {
+    cursor: 'pointer',
+    margin: [15, 5, 5, 'auto'],
   },
   ownMessageList: {
     color: '#8cc054',
-    // width: '200px',
-    // fontWeight: '600',
-
-    // listStyle: 'none',
     margin: '0',
     padding: '0',
-    //написать не последний ребенок!!!!!!!!!!!!!!!!!!!!!!!!1
   },
   ownMessageItem: {
     display: 'flex',
-    // justifyContent: 'space-between',
     backgroundColor: '#4b4d4a',
     width: '54%',
     marginLeft: 'auto',
@@ -156,6 +195,7 @@ const useStyles = createUseStyles({
     marginBottom: '5px',
     color: 'whitesmoke',
     fontWeight: '400',
-    width: '100%',
+    wordWrap: 'break-word',
+    width: '400px',
   },
 });
